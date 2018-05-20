@@ -22,27 +22,28 @@ var getNextChar = function(){
 };
 
 // DETERMINES WHICH CASE TO CALL
-function lexer(char){
-  // checks char using RegEx
-  // calls appropriate case
-  if(currentChar === '['){
-    // do something call the next stuff
-  } else if(currentChar === ']'){
-    // terminate the array operation
-  } else if (currentChar === ','){
-    // do something
-  } else if (currentChar == 'some Regular expression for a letter'){
-    // do something
-  } else{
-    throw('some error message');
+  function lexer(char){
+    // checks char using RegEx
+    // calls appropriate case
+    if(currentChar === '['){
+      // do something call the next stuff
+    } else if(currentChar === ']'){
+      // terminate the array operation
+    } else if (currentChar === ','){
+      // do something
+    } else if (currentChar == 'some Regular expression for a letter'){
+      // do something
+    } else{
+      throw('some error message');
+    }
+
   }
 
-}
 
 // CASES
-function arrayCase(){}
-function booleanCase(){}
-function nullCase(){}
+  function arrayCase(){}
+  function booleanCase(){}
+  function nullCase(){}
 
 
 
@@ -64,9 +65,13 @@ function parser(terminal){
 
 
 
+
 var testStrings = [
   '[true, false, null, false]',
 ];
+
+// console.log(parseString(testStrings[0]));
+parseString(testStrings[0
 
 /*
 For this example we have two Classes: Containers and Values
@@ -101,7 +106,3 @@ There are two ways to do this:
   Or parse out chunks of the string. Find the next comma, return everything in between. Do the rest as above.
 
 */
-
-
-// console.log(parseString(testStrings[0]));
-parseString(testStrings[0]);
