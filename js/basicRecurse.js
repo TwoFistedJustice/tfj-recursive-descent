@@ -26,9 +26,7 @@ var parseString = function(input) {
         // console.log('token: ' + currentToken + ' index: ' + currentIndex);
         lexer();
       }
-      // else {
-      //   throw('getNextToken() error');
-      // }
+
     } // end limit
     count++;
     // console.log('bottom- output, count, length', output, count, length);
@@ -108,6 +106,7 @@ var parseString = function(input) {
     } else{
       throw('null case, output is not an array')
     }
+    resetToken();
   }
 
   // ************** HELPER FUNCTIONS ****************
