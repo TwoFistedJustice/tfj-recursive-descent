@@ -1,17 +1,47 @@
 
+/*
+For this example we have two Classes: Containers and Values
+Containers are always of Type: Array
+Values can be of Type: Boolean or Null
+
+chars can be array braces, commas, or letters.
+  all chars symbolize either a Type or a Separator
+    A brace indicates a Container
+    A letter indicates a Value
+    A comma indicates a Separator.
+        It indicates a break between Values and is thrown out after recognition.
+
+The first char in the string is a square brace
+  this tells us it is a Container of Type array
+  so we call the Array case
+
+  Arrays:
+  Arrays are comma separated
+  Everything not a comma is kept.
+  We search for string literals.
+        (Regex would be more adaptable, but literals are easier to understand)
+  When something is found, we determine what Type of 'Value' it is
+    if 'true' or 'false' it is a boolean - we call Boolean() case
+    if 'null' -- we call Null() case
+
+  Then get the next char from the input string
+
+  Repeat until we run out of chars
+*/
+
 
 var parseString = function(input) {
   // you definitely want this instantiated to undefined. As it's a value type JSON doesn't use.
   var output = undefined;
-  // currentValue will get added to output, which will be an object or array
-  var currentValue = undefined;
+
   // the char or set of chars currently under inspection
   var currentToken = '';
+
   // the index of input currently being added to currentToken
   var currentIndex = 0;
-  //counts how many times getNextToken recurses
-  var count = 0;
+
   // sets a limit to prevent infinite loops during development
+  // this would be completey removed for production
   var limit = 80;
 
 
@@ -23,20 +53,16 @@ var parseString = function(input) {
       if (length > 0) {
         currentToken += input[currentIndex];
         currentIndex++;
-        // console.log('token: ' + currentToken + ' index: ' + currentIndex);
         lexer();
       }
-
     } // end limit
-    count++;
-    // console.log('bottom- output, count, length', output, count, length);
     // gets passed back and back and back
     return output;
   }
 
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
-    // console.log('lexer', currentToken)
+    // without the trim, whitespace will terminate recursion
     currentToken = currentToken.trim();
     if(currentToken === '[' || currentToken === ']'){
       arrayCase();
@@ -50,29 +76,26 @@ var parseString = function(input) {
     getNextToken();
   }
 
-  // CASES - in this instance there is only one case
+  // ****** CASES ************
   // parses array opening and closing brace
+  // creates the array which will be returned
   function arrayCase(){
-    // if(input.length > 0){
       truncateInput();
-    // }
-
     if(currentToken === '['){
       output = [];
         resetToken();
     } else if(currentToken === ']'){
       resetToken();
-      // close up shop and go home
+      // We're at the end of the string, close up shop and go home
       return;
     } else{
       throw('arrayCase() error');
     }
   }
 
-  // parses commas, quotes, colons
-  // separators mean 'the string is at an end'
-  // they always FOLLOW the value.
-  // opening quote doesn't matter, throw it out -- only a CLOSING quote matter!
+  // parses commas
+  // separators mean 'the string value is at an end'
+  // because they always FOLLOW the value.
   function separatorCase(){
     if(currentToken === ','){
        truncateInput();
@@ -96,7 +119,6 @@ var parseString = function(input) {
     resetToken();
   }
 
-
   function nullCase(){
     truncateInput();
     if(output.constructor === Array){
@@ -108,19 +130,6 @@ var parseString = function(input) {
     }
     resetToken();
   }
-
-  function stringCase(){
-    truncateInput();
-    if(output.constructor === Array){
-      output.push(currentToken);
-    } else{
-      throw('string case, output is not an array')
-    }
-    resetToken();
-  }
-
-  function numberCase() {}
-
 
   // ************** HELPER FUNCTIONS ****************
 
@@ -143,13 +152,8 @@ var parseString = function(input) {
   return getNextToken();
 } // END ParseString()
 
-// ***************** Tests **************************** //
 
-// CASES TO IMPLEMENT
-
-function nullCase(){}
-
-
+// ***************** ASSERTIONS **************************** //
 
 
 var testStrings = [
@@ -157,9 +161,6 @@ var testStrings = [
   '[false]]',
   '[true, false, false]',
   '[true, false, null, false]',
-  '["hello", "world", true, null]',
-  '[1, 0, -1]',
-  '[1, 0, -1, -0.4, 0.4, 1234.56, 1122334, 0.00011999999999999999]',
 ];
 
 
@@ -168,15 +169,7 @@ assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // 
 assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
 assertObjectsEqual(parseString(testStrings[2]), [true, false, false]);
 assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
-// assertObjectsEqual(parseString(testString4), undefined);
 
-function assertEqual(actual, expected){
-  if(actual === expected){
-    console.log('PASS: expected \"' + expected + '\", and got \"' + actual + '\"' );
-  } else {
-    console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"' );
-  }
-}
 
 function assertObjectsEqual(actual, expected){
   actual = JSON.stringify(actual);
@@ -189,30 +182,3 @@ function assertObjectsEqual(actual, expected){
 }
 
 
-
-/*
-For this example we have two Classes: Containers and Values
-Containers are always of Type: Array
-Values can be of Type: Boolean or Null
-
-chars can be '[', ']', ',', or a letter a-z
-  all chars symbolize either a Type or a Separator
-    A brace indicates a Container
-    A letter indicates a Value
-    A comma indicates a Separator. It indicates a break between Values and is thrown out after recognition.
-
-The first nextChar in the string is a square brace
-  this tells us it is a Container of Type array
-  so we call the Container-Array case
-
-  Array()
-  Arrays are comma separated
-  Everything not a comma is kept.
-  We search for string literals. (Regex would be more adaptable, but literals are easier to understand)
-  Determine what Type 'Value' is
-    if 'true' or 'false' it is a boolean - call Boolean() case
-    if 'null' call Null() case
-
-  get the nextChar()
-
-*/
