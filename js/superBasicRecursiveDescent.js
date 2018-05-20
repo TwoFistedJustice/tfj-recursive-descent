@@ -24,26 +24,32 @@ var parseString = function(input) {
   var output = undefined;
   var currentToken = '';
   var currentIndex = 0;
- var count = 0;
+  //count is to show how many times getNextToken recurses
+  var count = 0;
+  // if you pass any value except 'true' or 'false' it will run on forever. this limits it.
+  var limit = 10;
 
   var getNextToken = function(){
-    let length = input.length;
-    console.log('top- output, count, length', output, count, length);
+    if(limit > 0) {
+      limit--;
+      let length = input.length;
+      console.log('top- output, count, length', output, count, length);
 
-    if (length > 0) {
-      currentToken += input[currentIndex];
-      currentIndex++;
-      // console.log('getNextToken token, index: ', currentToken, currentIndex, output);
-      lexer();
-    } else if(length === 0){
-      // this never gets called! output gets caterpillar passed
-      // all the way back to the first instantiated instance
-      // which returns it to the original caller
-      console.log('this never gets called!');
-      // You don't even need this block. I left it here to show that you don't need it.
-    } else {
-      throw('getNextToken terminate');
-    }
+      if (length > 0) {
+        currentToken += input[currentIndex];
+        currentIndex++;
+        // console.log('getNextToken token, index: ', currentToken, currentIndex, output);
+        lexer();
+      } else if (length === 0) {
+        // this never gets called! output gets caterpillar passed
+        // all the way back to the first instantiated instance
+        // which returns it to the original caller
+        console.log('this never gets called!');
+        // You don't even need this block. I left it here to show that you don't need it.
+      } else {
+        throw('getNextToken terminate');
+      }
+    } // end limit
     count++;
     console.log('bottom- output, count, length', output, count, length);
     // gets passed back and back and back
@@ -80,10 +86,10 @@ var parseString = function(input) {
     // call this after something is found in the input
 var truncateInput = function(){
   if( input.length > 0) {
-    // let old = input;
+    let old = input;
     input = input.slice(currentIndex, input.length);
     currentIndex = 0;
-    // console.log('input truncated from ' + old + ' to ' + input);
+    console.log('input truncated from ' + old + ' to ' + input);
   } else {
     throw('input string has been reduced to zero length');
   }
@@ -98,12 +104,12 @@ return getNextToken();
 
 var testString1 = 'true' ;
 var testString2 = 'false';
-var testString3 = '42';
+// var testString3 = '42';
 
 
 assertEqual(parseString(testString1), true);
 assertEqual(parseString(testString2), false);
-assertEqual(parseString(testString2), undefined);
+assertEqual(parseString(testString3), undefined);
 
 
 function assertEqual(actual, expected){
