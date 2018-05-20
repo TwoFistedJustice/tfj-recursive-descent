@@ -69,11 +69,9 @@ var parseString = function(input) {
     // you can se true or false from here just as easily
     // but if you had a more complex data set, you would want to break it out into helpers
     // IRL this would use RegEx rather than literals
-    if(currentToken === 'true') {
+    if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
-    } else if (currentToken === 'false'){
-      booleanCase();
-    }else{
+    } else{
      getNextToken();
     }
   }
