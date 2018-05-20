@@ -71,7 +71,7 @@ var parseString = function(input) {
 
   // parses commas, quotes, colons
   // separators mean 'the string is at an end'
-  // they always FOLLOW the string.
+  // they always FOLLOW the value.
   // opening quote doesn't matter, throw it out -- only a CLOSING quote matter!
   function separatorCase(){
     if(currentToken === ','){
@@ -109,6 +109,19 @@ var parseString = function(input) {
     resetToken();
   }
 
+  function stringCase(){
+    truncateInput();
+    if(output.constructor === Array){
+      output.push(currentToken);
+    } else{
+      throw('string case, output is not an array')
+    }
+    resetToken();
+  }
+
+  function numberCase() {}
+
+
   // ************** HELPER FUNCTIONS ****************
 
   function resetToken(){
@@ -144,6 +157,7 @@ var testStrings = [
   '[false]]',
   '[true, false, false]',
   '[true, false, null, false]',
+  '["hello", "world", true, null]',
   '[1, 0, -1]',
   '[1, 0, -1, -0.4, 0.4, 1234.56, 1122334, 0.00011999999999999999]',
 ];
@@ -185,27 +199,20 @@ chars can be '[', ']', ',', or a letter a-z
   all chars symbolize either a Type or a Separator
     A brace indicates a Container
     A letter indicates a Value
-    A comma indicates a Separator. It indicates a break between Values and is not processed.
+    A comma indicates a Separator. It indicates a break between Values and is thrown out after recognition.
 
 The first nextChar in the string is a square brace
   this tells us it is a Container of Type array
-  so I call the Container-Array case
+  so we call the Container-Array case
 
   Array()
   Arrays are comma separated
-  So I search to the next comma
-  fetch everything between the two commas, ignoring whitespace - this the Value
+  Everything not a comma is kept.
+  We search for string literals. (Regex would be more adaptable, but literals are easier to understand)
   Determine what Type 'Value' is
     if 'true' or 'false' it is a boolean - call Boolean() case
     if 'null' call Null() case
 
   get the nextChar()
-
-There are two ways to do this:
-  Pure recursion, which always gets the next char and compares it until it gets to one that tells it to return.
-    In this case fetch 't', 'r', 'u', and 'e' where it then finds a comma. Concat those chars into a string 'true'.
-    Then determine that it represents a True-boolean. Process it as such.
-
-  Or parse out chunks of the string. Find the next comma, return everything in between. Do the rest as above.
 
 */
