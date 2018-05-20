@@ -65,6 +65,7 @@ var parseString = function(input) {
     // in this simple version, you actually don't need the 'case' function
     // you can se true or false from here just as easily
     // but if you had a more complex data set, you would want to break it out into helpers
+    // IRL this would use RegEx rather than literals
     if(currentToken === 'true') {
       booleanCase();
     } else if (currentToken === 'false'){
