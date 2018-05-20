@@ -3,7 +3,11 @@
 var parseString = function(input) {
   // you definitely want this instantiated to undefined. As it's a value type JSON doesn't use.
   var output = undefined;
+  // currentValue will get added to output, which will be an object or array
+  var currentValue = undefined;
+  // the char or set of chars currently under inspection
   var currentToken = '';
+  // the index of input currently being added to currentToken
   var currentIndex = 0;
   //counts how many times getNextToken recurses
   var count = 0;
@@ -22,7 +26,7 @@ var parseString = function(input) {
         // console.log('getNextToken token, index: ', currentToken, currentIndex, output);
         lexer();
       } else {
-        throw('getNextToken terminate');
+        throw('getNextToken() error');
       }
     } // end limit
     count++;
@@ -33,7 +37,9 @@ var parseString = function(input) {
 
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
-    if(currentToken === 'true' || currentToken === 'false') {
+    if(currentToken === '[' || currentToken === ']'){
+      arrayCase();
+    } else if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
     } else{
       getNextToken();
@@ -41,6 +47,28 @@ var parseString = function(input) {
   }
 
   // CASES - in this instance there is only one case
+  // parses array opening and closing brace
+  function arrayCase(){
+    if(currentToken === '['){
+      output = [];
+    } else if(currentToken === ']'){
+      // close up shop and go home
+      return;
+    } else{
+      throw('arrayCase() error');
+    }
+  }
+
+  // parses commas, quotes, colons
+  // separtors mean 'the string is at an end'
+  // they always FOLLOW the string.
+  // opening quote doesn't matter, throw it out -- CLOSING quote matters!
+  function separatorCase(){
+    if(currentToken === ','){
+      //
+    }
+  }
+
 
   function booleanCase() {
     truncateInput();
@@ -50,7 +78,7 @@ var parseString = function(input) {
     } else if (currentToken === 'false') {
       output = false;
     } else{
-      throw('error in booleanCase function');
+      throw('booleanCase() error');
     }
   }
 
@@ -62,7 +90,7 @@ var parseString = function(input) {
       currentIndex = 0;
       console.log('input truncated from ' + old + ' to ' + input);
     } else {
-      throw('input string has been reduced to zero length');
+      throw('truncateInput() error: input string has been reduced to zero length');
     }
   };
 
@@ -72,20 +100,27 @@ var parseString = function(input) {
 
 // ***************** Tests **************************** //
 
-// CASES
-function arrayCase(){}
+// CASES TO IMPLEMENT
+
 function nullCase(){}
 
 
 
 
 var testStrings = [
+  '[]',
+  '[true, false, false]',
   '[true, false, null, false]',
+  '[1, 0, -1]',
+  '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
 ];
 
-assertEqual(parseString(testString1), true);
-assertEqual(parseString(testString2), false);
-// assertEqual(parseString(testString3), undefined);
+
+
+assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0]));
+// assertObjectsEqual(parseString(testStrings[1]), [true, false, false]);
+// assertObjectsEqual(parseString(testStrings[2]), [true, false, null, false]);
+// assertObjectsEqual(parseString(testString3), undefined);
 
 function assertEqual(actual, expected){
   if(actual === expected){
@@ -95,6 +130,15 @@ function assertEqual(actual, expected){
   }
 }
 
+function assertObjectsEqual(actual, expected){
+  actual = JSON.stringify(actual);
+  expected = JSON.stringify(expected);
+  if(actual === expected){
+    console.log('PASS: expected \"' + expected + '\", and got \"' + actual + '\"' );
+  } else {
+    console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"' );
+  }
+}
 
 
 
