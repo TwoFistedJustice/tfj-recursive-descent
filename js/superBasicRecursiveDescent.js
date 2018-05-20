@@ -1,107 +1,118 @@
-
-var parseString = function(input) {
-
-  var currentChar = null;
-
-  // call this after something is found in the input
-var truncateString = function(first, last){
-  if( input.length > 0) {
-    input = input.slice(first, last);
-  } else {
-    throw('input string has been reduced to zero length');
-  }
-};
-
-// call this after EVERY operation
-var getNextChar = function(){
-  if(input.length > 0){
-     currentChar = input[0];
-  } else {
-    throw('input string has been reduced to zero length');
-  }
-};
-
-// DETERMINES WHICH CASE TO CALL
-function lexer(char){
-  // checks char using RegEx
-  // calls appropriate case
-  if(currentChar === '['){
-    // do something call the next stuff
-  } else if(currentChar === ']'){
-    // terminate the array operation
-  } else if (currentChar === ','){
-    // do something
-  } else if (currentChar == 'some Regular expression for a letter'){
-    // do something
-  } else{
-    throw('some error message');
-  }
-
-}
-
-// CASES
-function arrayCase(){}
-function booleanCase(){}
-function nullCase(){}
-
-
-
-getNextChar();
-console.log(currentChar);
-
-
-} // END ParseString()
-
-
-function lexer(json){
-
-}
-
-
-function parser(terminal){
-
-}
-
-
-
-var testStrings = [
-  '[true, false, null, false]',
-];
-
 /*
-For this example we have two Classes: Containers and Values
-Containers are always of Type: Array
-Values can be of Type: Boolean or Null
+This the most basic example of a recursive descent parser you are ever likely to see.
+It is good for exactly one thing: getting your first meaningful grasp of the concept.
 
-chars can be '[', ']', ',', or a letter a-z
-  all chars symbolize either a Type or a Separator
-    A brace indicates a Container
-    A letter indicates a Value
-    A comma indicates a Separator. It indicates a break between Values and is not processed.
+For this example we have a simple string: 'true' or 'false'
 
-The first nextChar in the string is a square brace
-  this tells us it is a Container of Type array
-  so I call the Container-Array case
+The goal is to parse the string one char at a time and extract the
+boolean value of true or false.
 
-  Array()
-  Arrays are comma separated
-  So I search to the next comma
-  fetch everything between the two commas, ignoring whitespace - this the Value
-  Determine what Type 'Value' is
-    if 'true' or 'false' it is a boolean - call Boolean() case
-    if 'null' call Null() case
+chars can be only be a letter a-z
 
-  get the nextChar()
+This example uses mutual recursion.
+We have a function getNextToken() which calls another function lexer(), which calls getNextToken,
+which calls lexer(), which calls... this goes on for a while.
 
-There are two ways to do this:
-  Pure recursion, which always gets the next char and compares it until it gets to one that tells it to return.
-    In this case fetch 't', 'r', 'u', and 'e' where it then finds a comma. Concat those chars into a string 'true'.
-    Then determine that it represents a True-boolean. Process it as such.
-
-  Or parse out chunks of the string. Find the next comma, return everything in between. Do the rest as above.
+In between calling each other, another function is called which chops the front of the input string
+off. When the input string is reduce to nothing, the whole regurgitates the finally discovered
+value all the way up and spits it out. Basically it eats a string and vomits a bool.
 
 */
 
 
-// console.log(parseString(testStrings[0]));
-parseString(testStrings[0]);
+var parseString = function(input) {
+  var output = undefined;
+  var currentToken = '';
+  var currentIndex = 0;
+ var count = 0;
+
+  var getNextToken = function(){
+    let length = input.length;
+    console.log('top- output, count, length', output, count, length);
+
+    if (length > 0) {
+      currentToken += input[currentIndex];
+      currentIndex++;
+      // console.log('getNextToken token, index: ', currentToken, currentIndex, output);
+      lexer();
+    } else if(length === 0){
+      // this never gets called! output gets caterpillar passed
+      // all the way back to the first instantiated instance
+      // which returns it to the original caller
+      console.log('this never gets called!');
+      // You don't even need this block. I left it here to show that you don't need it.
+    } else {
+      throw('getNextToken terminate');
+    }
+    count++;
+    console.log('bottom- output, count, length', output, count, length);
+    // gets passed back and back and back
+    return output;
+  }
+
+// LEXER DETERMINES WHICH CASE TO CALL
+  function lexer(){
+    // to keep it extremely simple, there are only two values that are accepted
+    if(currentToken === 'true') {
+      booleanCase();
+    } else if (currentToken === 'false'){
+      booleanCase();
+    }else{
+     getNextToken();
+    }
+  }
+
+  // CASES - in this instance there is only one case
+
+  function booleanCase(token) {
+    truncateInput();
+    // getNextToken();
+    // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
+    if (currentToken === 'true') {
+      output =  true;
+    } else if (currentToken === 'false') {
+      output = false;
+    } else{
+      throw('error in booleanCase function');
+    }
+  }
+
+    // call this after something is found in the input
+var truncateInput = function(){
+  if( input.length > 0) {
+    // let old = input;
+    input = input.slice(currentIndex, input.length);
+    currentIndex = 0;
+    // console.log('input truncated from ' + old + ' to ' + input);
+  } else {
+    throw('input string has been reduced to zero length');
+  }
+};
+
+return getNextToken();
+
+} // END ParseString()
+
+// ***************** Tests **************************** //
+
+
+var testString1 = 'true' ;
+var testString2 = 'false';
+var testString3 = '42';
+
+
+assertEqual(parseString(testString1), true);
+assertEqual(parseString(testString2), false);
+assertEqual(parseString(testString2), undefined);
+
+
+function assertEqual(actual, expected){
+  if(actual === expected){
+    console.log('PASS: expected \"' + expected + '\", and got \"' + actual + '\"' );
+  } else {
+    console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"' );
+  }
+}
+
+
+
