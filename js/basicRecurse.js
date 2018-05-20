@@ -19,15 +19,11 @@ var parseString = function(input) {
     if(limit > 0) {
       limit--;
       let length = input.length;
-      // console.log('top- output, count, length', output, count, length);
 
       if (length > 0) {
         currentToken += input[currentIndex];
         currentIndex++;
-        console.log('getNextToken if token: ', currentToken);
-        console.log('getNextToken if index: ', currentIndex);
-        // console.log('getNextToken if output: ',  output);
-
+        console.log('token: ' + currentToken + ' index: ' + currentIndex);
         lexer();
       } else {
         throw('getNextToken() error');
@@ -35,22 +31,21 @@ var parseString = function(input) {
     } // end limit
     count++;
     console.log('bottom- output, count, length', output, count, length);
-    // console.log('bottom- output', output);
     // gets passed back and back and back
     return output;
   }
 
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
+    currentToken = currentToken.trim();
     if(currentToken === '[' || currentToken === ']'){
-      console.log('array')
       arrayCase();
-      getNextToken();
     } else if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
-    } else{
-      getNextToken();
+    } else if(currentToken === ','){
+      separatorCase()
     }
+    getNextToken();
   }
 
   // CASES - in this instance there is only one case
@@ -74,16 +69,13 @@ var parseString = function(input) {
   // opening quote doesn't matter, throw it out -- only a CLOSING quote matter!
   function separatorCase(){
     if(currentToken === ','){
-       console.log('*************** separator')
        truncateInput();
+       resetToken();
     }
   }
 
-
   function booleanCase() {
-    console.log('bool')
     truncateInput();
-    // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
     if(output.constructor === Array){
       console.log('push', currentToken)
       if (currentToken === 'true') {
@@ -95,9 +87,11 @@ var parseString = function(input) {
     } else{
       throw('booleanCase() error');
     }
-
+    resetToken();
   }
 
+
+  // ************** HELPER FUNCTIONS ****************
 
   function resetToken(){
     currentToken = '';
@@ -116,7 +110,6 @@ var parseString = function(input) {
   };
 
   return getNextToken();
-
 } // END ParseString()
 
 // ***************** Tests **************************** //
@@ -134,7 +127,7 @@ var testStrings = [
   '[true, false, false]',
   '[true, false, null, false]',
   '[1, 0, -1]',
-  '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
+  '[1, 0, -1, -0.4, 0.4, 1234.56, 1122334, 0.00011999999999999999]',
 ];
 
 
