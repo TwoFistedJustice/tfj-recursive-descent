@@ -14,16 +14,20 @@ var parseString = function(input) {
   // sets a limit to prevent infinite loops during development
   var limit = 20;
 
+
   var getNextToken = function(){
     if(limit > 0) {
       limit--;
       let length = input.length;
-      console.log('top- output, count, length', output, count, length);
+      // console.log('top- output, count, length', output, count, length);
 
       if (length > 0) {
         currentToken += input[currentIndex];
         currentIndex++;
-        // console.log('getNextToken token, index: ', currentToken, currentIndex, output);
+        console.log('getNextToken if token: ', currentToken);
+        console.log('getNextToken if index: ', currentIndex);
+        // console.log('getNextToken if output: ',  output);
+
         lexer();
       } else {
         throw('getNextToken() error');
@@ -31,6 +35,7 @@ var parseString = function(input) {
     } // end limit
     count++;
     console.log('bottom- output, count, length', output, count, length);
+    // console.log('bottom- output', output);
     // gets passed back and back and back
     return output;
   }
@@ -38,7 +43,9 @@ var parseString = function(input) {
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
     if(currentToken === '[' || currentToken === ']'){
+      console.log('array')
       arrayCase();
+      getNextToken();
     } else if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
     } else{
@@ -49,8 +56,10 @@ var parseString = function(input) {
   // CASES - in this instance there is only one case
   // parses array opening and closing brace
   function arrayCase(){
+    truncateInput();
     if(currentToken === '['){
       output = [];
+      resetToken();
     } else if(currentToken === ']'){
       // close up shop and go home
       return;
@@ -62,24 +71,36 @@ var parseString = function(input) {
   // parses commas, quotes, colons
   // separtors mean 'the string is at an end'
   // they always FOLLOW the string.
-  // opening quote doesn't matter, throw it out -- CLOSING quote matters!
+  // opening quote doesn't matter, throw it out -- only a CLOSING quote matter!
   function separatorCase(){
     if(currentToken === ','){
-      //
+       console.log('*************** separator')
+       truncateInput();
     }
   }
 
 
   function booleanCase() {
+    console.log('bool')
     truncateInput();
     // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
-    if (currentToken === 'true') {
-      output =  true;
-    } else if (currentToken === 'false') {
-      output = false;
+    if(output.constructor === Array){
+      console.log('push', currentToken)
+      if (currentToken === 'true') {
+        output.push(true);
+
+      } else if (currentToken === 'false') {
+        output.push(false);
+      }
     } else{
       throw('booleanCase() error');
     }
+
+  }
+
+
+  function resetToken(){
+    currentToken = '';
   }
 
   // call this after something is found in the input
@@ -109,6 +130,7 @@ function nullCase(){}
 
 var testStrings = [
   '[]',
+  '[false]',
   '[true, false, false]',
   '[true, false, null, false]',
   '[1, 0, -1]',
@@ -117,10 +139,11 @@ var testStrings = [
 
 
 
-assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0]));
-// assertObjectsEqual(parseString(testStrings[1]), [true, false, false]);
-// assertObjectsEqual(parseString(testStrings[2]), [true, false, null, false]);
-// assertObjectsEqual(parseString(testString3), undefined);
+// assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
+// assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
+assertObjectsEqual(parseString(testStrings[2]), [true, false, false]);
+// assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
+// assertObjectsEqual(parseString(testString4), undefined);
 
 function assertEqual(actual, expected){
   if(actual === expected){
