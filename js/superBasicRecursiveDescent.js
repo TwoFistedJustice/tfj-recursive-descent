@@ -78,7 +78,7 @@ var parseString = function(input) {
 
   // CASES - in this instance there is only one case
 
-  function booleanCase(token) {
+  function booleanCase() {
     truncateInput();
     // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
     if (currentToken === 'true') {
