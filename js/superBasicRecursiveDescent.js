@@ -1,4 +1,6 @@
 /*
+This is a pre-cursor to building a JSON parser.
+
 This the most basic example of a recursive descent parser you are ever likely to see.
 It is good for exactly one thing: getting your first meaningful grasp of the concept.
 
@@ -21,10 +23,11 @@ value all the way up and spits it out. Basically it eats a string and vomits a b
 
 
 var parseString = function(input) {
+  // you definitely want this instantiated to undefined. As it's a value type JSON doesn't use.
   var output = undefined;
   var currentToken = '';
   var currentIndex = 0;
-  //count is to show how many times getNextToken recurses
+  //counts how many times getNextToken recurses
   var count = 0;
   // if you pass any value except 'true' or 'false' it will run on forever. this limits it.
   var limit = 10;
@@ -59,6 +62,9 @@ var parseString = function(input) {
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
     // to keep it extremely simple, there are only two values that are accepted
+    // in this simple version, you actually don't need the 'case' function
+    // you can se true or false from here just as easily
+    // but if you had a more complex data set, you would want to break it out into helpers
     if(currentToken === 'true') {
       booleanCase();
     } else if (currentToken === 'false'){
@@ -72,7 +78,6 @@ var parseString = function(input) {
 
   function booleanCase(token) {
     truncateInput();
-    // getNextToken();
     // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
     if (currentToken === 'true') {
       output =  true;
@@ -104,13 +109,13 @@ return getNextToken();
 
 var testString1 = 'true' ;
 var testString2 = 'false';
+// Don't run testString3 without the limiter
 // var testString3 = '42';
 
 
 assertEqual(parseString(testString1), true);
 assertEqual(parseString(testString2), false);
-assertEqual(parseString(testString3), undefined);
-
+// assertEqual(parseString(testString3), undefined);
 
 function assertEqual(actual, expected){
   if(actual === expected){
