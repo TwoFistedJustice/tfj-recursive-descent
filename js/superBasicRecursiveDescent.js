@@ -19,6 +19,9 @@ In between calling each other, another function is called which chops the front 
 off. When the input string is reduce to nothing, the whole regurgitates the finally discovered
 value all the way up and spits it out. Basically it eats a string and vomits a bool.
 
+One itty bitty little detail without which the whole thing farts out: the first function that gets
+called also has to be the last function to get called. When you understand that, you are ready.
+
 */
 
 
