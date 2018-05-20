@@ -12,7 +12,7 @@ var parseString = function(input) {
   //counts how many times getNextToken recurses
   var count = 0;
   // sets a limit to prevent infinite loops during development
-  var limit = 20;
+  var limit = 80;
 
 
   var getNextToken = function(){
@@ -23,25 +23,29 @@ var parseString = function(input) {
       if (length > 0) {
         currentToken += input[currentIndex];
         currentIndex++;
-        console.log('token: ' + currentToken + ' index: ' + currentIndex);
+        // console.log('token: ' + currentToken + ' index: ' + currentIndex);
         lexer();
-      } else {
-        throw('getNextToken() error');
       }
+      // else {
+      //   throw('getNextToken() error');
+      // }
     } // end limit
     count++;
-    console.log('bottom- output, count, length', output, count, length);
+    // console.log('bottom- output, count, length', output, count, length);
     // gets passed back and back and back
     return output;
   }
 
 // LEXER DETERMINES WHICH CASE TO CALL
   function lexer(){
+    // console.log('lexer', currentToken)
     currentToken = currentToken.trim();
     if(currentToken === '[' || currentToken === ']'){
       arrayCase();
     } else if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
+    } else if(currentToken === 'null'){
+      nullCase()
     } else if(currentToken === ','){
       separatorCase()
     }
@@ -51,11 +55,15 @@ var parseString = function(input) {
   // CASES - in this instance there is only one case
   // parses array opening and closing brace
   function arrayCase(){
-    truncateInput();
+    // if(input.length > 0){
+      truncateInput();
+    // }
+
     if(currentToken === '['){
       output = [];
-      resetToken();
+        resetToken();
     } else if(currentToken === ']'){
+      resetToken();
       // close up shop and go home
       return;
     } else{
@@ -64,7 +72,7 @@ var parseString = function(input) {
   }
 
   // parses commas, quotes, colons
-  // separtors mean 'the string is at an end'
+  // separators mean 'the string is at an end'
   // they always FOLLOW the string.
   // opening quote doesn't matter, throw it out -- only a CLOSING quote matter!
   function separatorCase(){
@@ -77,7 +85,7 @@ var parseString = function(input) {
   function booleanCase() {
     truncateInput();
     if(output.constructor === Array){
-      console.log('push', currentToken)
+      // console.log('push', currentToken)
       if (currentToken === 'true') {
         output.push(true);
 
@@ -91,6 +99,17 @@ var parseString = function(input) {
   }
 
 
+  function nullCase(){
+    truncateInput();
+    if(output.constructor === Array){
+      if(currentToken === 'null'){
+        output.push(null);
+      }
+    } else{
+      throw('null case, output is not an array')
+    }
+  }
+
   // ************** HELPER FUNCTIONS ****************
 
   function resetToken(){
@@ -103,7 +122,7 @@ var parseString = function(input) {
       let old = input;
       input = input.slice(currentIndex, input.length);
       currentIndex = 0;
-      console.log('input truncated from ' + old + ' to ' + input);
+      // console.log('input truncated from ' + old + ' to ' + input);
     } else {
       throw('truncateInput() error: input string has been reduced to zero length');
     }
@@ -123,7 +142,7 @@ function nullCase(){}
 
 var testStrings = [
   '[]',
-  '[false]',
+  '[false]]',
   '[true, false, false]',
   '[true, false, null, false]',
   '[1, 0, -1]',
@@ -132,10 +151,10 @@ var testStrings = [
 
 
 
-// assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
-// assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
+assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
+assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
 assertObjectsEqual(parseString(testStrings[2]), [true, false, false]);
-// assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
+assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
 // assertObjectsEqual(parseString(testString4), undefined);
 
 function assertEqual(actual, expected){
