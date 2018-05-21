@@ -1,0 +1,35 @@
+Pre-requisites
+  - Intermediate level javascript
+  - Know what JSON is
+  - Scope and closures
+  - If you don't understand closure at least on a basic level STOP!
+          Go back and learn about it. First read up on it. And then fiddle with
+          this repo:
+          https://github.com/TwoFistedJustice/javascript-closure-basic
+
+
+1. Examine the file mutualRecursion.js
+  - Get a general idea of how it work.
+  - It's okay if it melts your brain a little.
+  - Make prodigious use of console logs to see how it works
+
+2. Examine the file nonWorkingExample.js
+   - This is the basic template that will be used in the
+     more advanced versions.
+
+3. Play around with superBasicRecursiveDescent.js
+     - This only parses some very simple strings
+     - it will give you a BASIC grasp of how to do it.
+
+4. Move on to basicRecurse_01.js
+  - This takes a string representing an array of booleans and nulls.
+  - This is closer to how to do it. But it still isn't complete.
+  - Pay particular attention to the how the variable `output`
+  - Notice how the order of returns out of getNextToken
+  - No I'm not going to explain it. You have to figure it out for yourself.
+   - Make prodigious use of console logs.
+   - The devtools Sources panel will also be of help.
+
+5. basicRecurse_02.js switches things up.
+  - Previously we used closures haphazardly.
+  - Now we will start using them deliberately.
