@@ -20,7 +20,7 @@ off. When the input string is reduce to nothing, the whole regurgitates the fina
 value all the way up and spits it out. Basically it eats a string and vomits a bool.
 
 One itty bitty little detail without which the whole thing farts out: the first function that gets
-called also has to be the last function to get called. When you understand that, you are ready.
+called also has to be the last function to get called. When you understand that, you are ready to move on.
 
 */
 
@@ -69,24 +69,12 @@ var parseString = function(input) {
     // you can se true or false from here just as easily
     // but if you had a more complex data set, you would want to break it out into helpers
     // IRL this would use RegEx rather than literals
-    if(currentToken === 'true' || currentToken === 'false') {
-      booleanCase();
-    } else{
-     getNextToken();
-    }
-  }
-
-  // CASES - in this instance there is only one case
-
-  function booleanCase() {
-    truncateInput();
-    // console.log('booleanCase: token is a ' + typeof(currentToken) + ' that reads: \"' + currentToken +'\"')
     if (currentToken === 'true') {
       output =  true;
     } else if (currentToken === 'false') {
       output = false;
     } else{
-      throw('error in booleanCase function');
+     getNextToken();
     }
   }
 
