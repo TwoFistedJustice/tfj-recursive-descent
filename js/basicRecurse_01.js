@@ -65,7 +65,6 @@ var parseString = function(input) {
     } else if(currentToken.match(a.bool) || currentToken.match(a.knull)) {
       valueCase();
     } else if(currentToken === ','){
-      truncateInput();
       resetToken();
     }
     getNextToken();
@@ -74,8 +73,6 @@ var parseString = function(input) {
   // ****** CASES ************
 
   function arrayCase(){
-    // let output = [];
-    truncateInput();
     if(currentToken === '['){
       output = [];
       resetToken();
@@ -91,7 +88,6 @@ var parseString = function(input) {
 
 
   function valueCase() {
-    truncateInput();
     if(output.constructor === Array){
       if (currentToken === 'true') {
         output.push(true);
@@ -114,17 +110,6 @@ var parseString = function(input) {
     currentToken = '';
   }
 
-  // call this after something is found in the input
-  var truncateInput = function(){
-    if( input.length > 0) {
-      let old = input;
-      input = input.slice(currentIndex, input.length);
-      currentIndex = 0;
-      // console.log('input truncated from ' + old + ' to ' + input);
-    } else {
-      throw('truncateInput() error: input string has been reduced to zero length');
-    }
-  };
 
   getNextToken();
   return output;
