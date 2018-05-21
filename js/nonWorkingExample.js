@@ -18,7 +18,7 @@ function getNextToken() {
 
 var currentToken = 'The next variable in the input string. ';
 
-// this is actually C#
+
 function S() {
   // if ('if')
   //  call E()
@@ -52,7 +52,7 @@ function S() {
     throw ("Procedure S() expected an 'if' or 'then' or else or begin or print  token " + "but received: " + currentToken);
   }
 }
-}
+
 
 
 function L() {
@@ -70,7 +70,7 @@ function L() {
 }
 
 
-function E() {
+function E() {v
   if (currentToken === "i") {
     getNextToken();
     return;
