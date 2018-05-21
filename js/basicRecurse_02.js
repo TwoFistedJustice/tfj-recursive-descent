@@ -1,38 +1,16 @@
 
 /*
-For this example we have two Classes: Containers and Values
-Containers are always of Type: Array
-Values can be of Type: Boolean or Null
+Building an object
+Determine whether array or object
+  An array is looking for Elements => Element() => Value
+  An object is looking or members => Members() => Pair() => {Key() && Value(){}}
 
-chars can be array braces, commas, or letters.
-  all chars symbolize either a Type or a Separator
-    A brace indicates a Container
-    A letter indicates a Value
-    A comma indicates a Separator.
-        It indicates a break between Values and is thrown out after recognition.
 
-The first char in the string is a square brace
-  this tells us it is a Container of Type array
-  so we call the Array case
-
-  Arrays:
-  Arrays are comma separated
-  Everything not a comma is kept.
-  We search for string literals.
-        (Regex would be more adaptable, but literals are easier to understand)
-  When something is found, we determine what Type of 'Value' it is
-    if 'true' or 'false' it is a boolean - we call Boolean() case
-    if 'null' -- we call Null() case
-
-  Then get the next char from the input string
-
-  Repeat until we run out of chars
 */
-
 
 var parseString = function(input) {
   // you definitely want this instantiated to undefined. As it's a value type JSON doesn't use.
-  var output = undefined;
+  // var output = undefined;  // moving from top scope to inner function scope
 
   // the char or set of chars currently under inspection
   var currentToken = '';
@@ -40,10 +18,23 @@ var parseString = function(input) {
   // the index of input currently being added to currentToken
   var currentIndex = 0;
 
+   //when a pair is found use this
+   var pairing = {
+     active: false,
+     key: undefined
+   }
   // sets a limit to prevent infinite loops during development
   // this would be completey removed for production
   var limit = 80;
 
+  //RegEx Library x.match(a.thing)
+  var a = {
+    string: /"(.*)"/,
+    pair: /("(.*)":)/,
+    // key: /("(.*)")/,
+    bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
+    knull: /(?<!")(null)/,  // because 'null' is a reserved word
+  }
 
   var getNextToken = function(){
     if(limit > 0) {
@@ -64,11 +55,14 @@ var parseString = function(input) {
   function lexer(){
     // without the trim, whitespace will terminate recursion
     currentToken = currentToken.trim();
-    if(currentToken === '[' || currentToken === ']'){
-      arrayCase();
-    } else if(currentToken === 'true' || currentToken === 'false') {
+    if(currentToken === '{') || currentToken === '}') {
+      objectCase();
+    }else if(currentToken.match(a.pair)){
+
+       pairCase();
+    } else if(currentToken.match(a.bool)) {
       booleanCase();
-    } else if(currentToken === 'null'){
+    } else if(currentToken.match(a.knull)){
       nullCase()
     } else if(currentToken === ','){
       separatorCase()
@@ -79,12 +73,29 @@ var parseString = function(input) {
   // ****** CASES ************
   // parses array opening and closing brace
   // creates the array which will be returned
-  function arrayCase(){
+  /*
+    For Monday:
+    I think that the scope of object case can do the whole prop set for the object
+    fire off getNewToken from here. Return it to here. Then go back to normal sequencing.
+
+    in objectCase:
+       Set a let  to store the key
+       Set a let  to store the value
+    Fire off getNewToken from here and
+    return it to the value let
+    Then add that whole thing as a prop
+    to output
+    Then go back to our regular programming :-)
+
+
+  */
+  function objectCase(){
+
       truncateInput();
-    if(currentToken === '['){
-      output = [];
+    if(currentToken === '{'){
+      output = {};
         resetToken();
-    } else if(currentToken === ']'){
+    } else if(currentToken === '}'){
       resetToken();
       // We're at the end of the string, close up shop and go home
       return;
@@ -93,43 +104,28 @@ var parseString = function(input) {
     }
   }
 
+  function pairCase(){
+// set key to undefined
+    //set bool to indicate a value is needed (set it back when done)
+    truncateInput();
+    if(currentToken.match(a.pair)){
+      let key = setKey(currentToken);
+      pairing.active = true;
+      pairing.key = key;
+      output[key] = undefined;
+      resetToken();
+      console.log('if I call getNextToken from here, would it cascade back to here? I think so....');
+
+
+    }else{
+      throw('pairCase: token is not a pair');
+    }
+  }
+
   // parses commas
   // separators mean 'the string value is at an end'
   // because they always FOLLOW the value.
-  function separatorCase(){
-    if(currentToken === ','){
-       truncateInput();
-       resetToken();
-    }
-  }
-
-  function booleanCase() {
-    truncateInput();
-    if(output.constructor === Array){
-      // console.log('push', currentToken)
-      if (currentToken === 'true') {
-        output.push(true);
-
-      } else if (currentToken === 'false') {
-        output.push(false);
-      }
-    } else{
-      throw('booleanCase() error');
-    }
-    resetToken();
-  }
-
-  function nullCase(){
-    truncateInput();
-    if(output.constructor === Array){
-      if(currentToken === 'null'){
-        output.push(null);
-      }
-    } else{
-      throw('null case, output is not an array')
-    }
-    resetToken();
-  }
+  function separatorCase(){}
 
   // ************** HELPER FUNCTIONS ****************
 
@@ -140,7 +136,7 @@ var parseString = function(input) {
   // call this after something is found in the input
   var truncateInput = function(){
     if( input.length > 0) {
-      let old = input;
+      // let old = input;
       input = input.slice(currentIndex, input.length);
       currentIndex = 0;
       // console.log('input truncated from ' + old + ' to ' + input);
@@ -153,22 +149,30 @@ var parseString = function(input) {
 } // END ParseString()
 
 
+// it retrieves whatever is between quotes
+function setKey(str){
+  return str.replace(/"([^"]+(?="))"/g, '$1');
+}
+
+
 // ***************** ASSERTIONS **************************** //
 
 
 var testStrings = [
-  '[]',
-  '[false]]',
-  '[true, false, false]',
-  '[true, false, null, false]',
+  '{}',
+  '{"foo": "bar"}',
+  '{"a": "b", "c": "d"}',
+  '{"foo": true, "bar": false, "baz": null}',
+  '{"boolean, true": true, "boolean, false": false, "null": null }',
 ];
 
 
 
-assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
-assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
-assertObjectsEqual(parseString(testStrings[2]), [true, false, false]);
-assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
+assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); //
+assertObjectsEqual(parseString(testStrings[1]), JSON.parse(testStrings[1])); //
+assertObjectsEqual(parseString(testStrings[2]), JSON.parse(testStrings[2]));
+assertObjectsEqual(parseString(testStrings[3]), JSON.parse(testStrings[3]));
+assertObjectsEqual(parseString(testStrings[4]), JSON.parse(testStrings[4]));
 
 
 function assertObjectsEqual(actual, expected){
