@@ -20,6 +20,8 @@ The first char in the string is a square brace
   Everything not a comma is kept.
   We search for string literals.
         (Regex would be more adaptable, but literals are easier to understand)
+        Actually we use both. There is some RegEx in the lexer along with literal
+        notation commented out for comparison.
   When something is found, we determine what Type of 'Value' it is
     if 'true' or 'false' it is a boolean - we call Boolean() case
     if 'null' -- we call Null() case
