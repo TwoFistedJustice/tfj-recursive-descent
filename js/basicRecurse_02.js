@@ -55,15 +55,14 @@ var parseString = function(input) {
   function lexer(){
     // without the trim, whitespace will terminate recursion
     currentToken = currentToken.trim();
-    if(currentToken === '{') || currentToken === '}') {
+    if(currentToken === '{' || currentToken === '}') {
       objectCase();
-    }else if(currentToken.match(a.pair)){
-
+    } else if(currentToken.match(a.pair)){
        pairCase();
     } else if(currentToken.match(a.bool)) {
-      booleanCase();
+      // booleanCase();
     } else if(currentToken.match(a.knull)){
-      nullCase()
+      // nullCase()
     } else if(currentToken === ','){
       separatorCase()
     }
