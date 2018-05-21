@@ -145,12 +145,6 @@ var testStrings = [
 
 testStrings.forEach(str => assertObjectsEqual(parseString(str), JSON.parse(str)));
 
-// assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
-// assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
-// assertObjectsEqual(parseString(testStrings[1]), JSON.parse(testStrings[1])); // pass
-// assertObjectsEqual(parseString(testStrings[2]), JSON.parse(testStrings[2])); // pass
-// assertObjectsEqual(parseString(testStrings[3]), JSON.parse(testStrings[3])); // pass
-
 
 function assertObjectsEqual(actual, expected){
   actual = JSON.stringify(actual);
