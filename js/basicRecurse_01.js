@@ -1,4 +1,3 @@
-
 /*
 For this example we have two Classes: Containers and Values
 Containers are always of Type: Array
@@ -31,7 +30,7 @@ The first char in the string is a square brace
   Repeat until we run out of chars
 */
 
-var parseString = function(input) {
+var parseString = function (input) {
   var output = undefined; // moving into a lower scope
   var currentToken = '';
   var currentIndex = 0;
@@ -42,29 +41,25 @@ var parseString = function(input) {
 
   var limit = 80;
 
-  var getNextToken = function(){
-    if(limit > 0) {
+  var getNextToken = function () {
+    if (limit > 0) {
       limit--;
-      let length = input.length;
-
-      if (length > 0) {
-        currentToken += input[currentIndex];
-        currentIndex++;
-        lexer();
-      }
+      currentToken += input[currentIndex];
+      currentIndex++;
+      lexer();
     } // end limit
     return output;
   }
 
 // LEXER
-  function lexer(){
+  function lexer() {
 
     currentToken = currentToken.trim();
-    if(currentToken === '['){
+    if (currentToken === '[') {
       arrayCase();
-    } else if(currentToken.match(a.bool) || currentToken.match(a.knull)) {
+    } else if (currentToken.match(a.bool) || currentToken.match(a.knull)) {
       valueCase();
-    } else if(currentToken === ',' || currentToken === ']'){ // both of these mean 'skip ahead'
+    } else if (currentToken === ',' || currentToken === ']') { // both of these mean 'skip ahead'
       resetToken();
     }
     getNextToken();
@@ -72,27 +67,27 @@ var parseString = function(input) {
 
   // ****** CASES ************
 
-  function arrayCase(){
-    if(currentToken === '['){
+  function arrayCase() {
+    if (currentToken === '[') {
       output = [];
       resetToken();
-    }  else{
+    } else {
       throw('arrayCase() error');
     }
   }
 
 
   function valueCase() {
-    if(output.constructor === Array){
+    if (output.constructor === Array) {
       if (currentToken === 'true') {
         output.push(true);
       } else if (currentToken === 'false') {
         output.push(false);
-      }else if (currentToken === 'null'){
+      } else if (currentToken === 'null') {
         output.push(null);
       }
 
-    } else{
+    } else {
       throw('valueCase() error');
     }
     resetToken();
@@ -101,7 +96,7 @@ var parseString = function(input) {
 
   // ************** HELPER FUNCTIONS ****************
 
-  function resetToken(){
+  function resetToken() {
     currentToken = '';
   }
 
@@ -126,13 +121,13 @@ var testStrings = [
 testStrings.forEach(str => assertObjectsEqual(parseString(str), JSON.parse(str)));
 
 
-function assertObjectsEqual(actual, expected){
+function assertObjectsEqual(actual, expected) {
   actual = JSON.stringify(actual);
   expected = JSON.stringify(expected);
-  if(actual === expected){
-    console.log('PASS: expected \"' + expected + '\", and got \"' + actual + '\"' );
+  if (actual === expected) {
+    console.log('PASS: expected \"' + expected + '\", and got \"' + actual + '\"');
   } else {
-    console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"' );
+    console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"');
   }
 }
 
