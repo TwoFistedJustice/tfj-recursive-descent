@@ -31,29 +31,16 @@ The first char in the string is a square brace
   Repeat until we run out of chars
 */
 
-
 var parseString = function(input) {
-  // you definitely want this instantiated to undefined. As it's a value type JSON doesn't use.
-  var output = undefined;
-
-  // the char or set of chars currently under inspection
+  var output = undefined; // moving into a lower scope
   var currentToken = '';
-
-  // the index of input currently being added to currentToken
   var currentIndex = 0;
-
-  //RegEx Libary x.match(a.thing)
-  // string literals will also work
-  var a = {
+  var a = {                     //RegEx Libary x.match(a.thing)
     bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
   }
 
-
-  // sets a limit to prevent infinite loops during development
-  // this would be completey removed for production
   var limit = 80;
-
 
   var getNextToken = function(){
     if(limit > 0) {
@@ -66,83 +53,60 @@ var parseString = function(input) {
         lexer();
       }
     } // end limit
-    // gets passed back and back and back
     return output;
   }
 
-// LEXER DETERMINES WHICH CASE TO CALL
-  // you can use literals or RegEx!
+// LEXER
   function lexer(){
-    // without the trim, whitespace will terminate recursion
+
     currentToken = currentToken.trim();
     if(currentToken === '[' || currentToken === ']'){
       arrayCase();
-    // } else if(currentToken === 'true' || currentToken === 'false') {
-    } else if(currentToken.match(a.bool)) {
-      booleanCase();
-    // } else if(currentToken === 'null'){
-    } else if(currentToken.match(a.knull)){
-      nullCase()
+    } else if(currentToken.match(a.bool) || currentToken.match(a.knull)) {
+      valueCase();
     } else if(currentToken === ','){
-      separatorCase()
+      truncateInput();
+      resetToken();
     }
     getNextToken();
   }
 
   // ****** CASES ************
-  // parses array opening and closing brace
-  // creates the array which will be returned
+
   function arrayCase(){
-      truncateInput();
+    // let output = [];
+    truncateInput();
     if(currentToken === '['){
       output = [];
-        resetToken();
+      resetToken();
     } else if(currentToken === ']'){
       resetToken();
-      // We're at the end of the string, close up shop and go home
       return;
     } else{
       throw('arrayCase() error');
     }
+
+    // return output;
   }
 
-  // parses commas
-  // separators mean 'the string value is at an end'
-  // because they always FOLLOW the value.
-  function separatorCase(){
-    if(currentToken === ','){
-       truncateInput();
-       resetToken();
-    }
-  }
 
-  function booleanCase() {
+  function valueCase() {
     truncateInput();
     if(output.constructor === Array){
-      // console.log('push', currentToken)
       if (currentToken === 'true') {
         output.push(true);
-
       } else if (currentToken === 'false') {
         output.push(false);
+      }else if (currentToken === 'null'){
+        output.push(null);
       }
+
     } else{
-      throw('booleanCase() error');
+      throw('valueCase() error');
     }
     resetToken();
   }
 
-  function nullCase(){
-    truncateInput();
-    if(output.constructor === Array){
-      if(currentToken === 'null'){
-        output.push(null);
-      }
-    } else{
-      throw('null case, output is not an array')
-    }
-    resetToken();
-  }
 
   // ************** HELPER FUNCTIONS ****************
 
@@ -161,8 +125,10 @@ var parseString = function(input) {
       throw('truncateInput() error: input string has been reduced to zero length');
     }
   };
+  getNextToken();
 
-  return getNextToken();
+  return output;
+  // return getNextToken();
 } // END ParseString()
 
 
