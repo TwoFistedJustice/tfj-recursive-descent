@@ -40,14 +40,6 @@ var parseString = function(input) {
   // the index of input currently being added to currentToken
   var currentIndex = 0;
 
-  //RegEx Libary x.match(a.thing)
-  // string literals will also work
-  var a = {
-    bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
-    knull: /(?<!")(null)/,
-  }
-
-
   // sets a limit to prevent infinite loops during development
   // this would be completey removed for production
   var limit = 80;
@@ -69,17 +61,14 @@ var parseString = function(input) {
   }
 
 // LEXER DETERMINES WHICH CASE TO CALL
-  // you can use literals or RegEx!
   function lexer(){
     // without the trim, whitespace will terminate recursion
     currentToken = currentToken.trim();
     if(currentToken === '[' || currentToken === ']'){
       arrayCase();
-    // } else if(currentToken === 'true' || currentToken === 'false') {
-    } else if(currentToken.match(a.bool)) {
+    } else if(currentToken === 'true' || currentToken === 'false') {
       booleanCase();
-    // } else if(currentToken === 'null'){
-    } else if(currentToken.match(a.knull)){
+    } else if(currentToken === 'null'){
       nullCase()
     } else if(currentToken === ','){
       separatorCase()
@@ -169,19 +158,17 @@ var parseString = function(input) {
 
 var testStrings = [
   '[]',
-  '[false]',
+  '[false]]',
   '[true, false, false]',
   '[true, false, null, false]',
 ];
 
 
-testStrings.forEach(str => assertObjectsEqual(parseString(str), JSON.parse(str)));
 
-// assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
-// assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
-// assertObjectsEqual(parseString(testStrings[1]), JSON.parse(testStrings[1])); // pass
-// assertObjectsEqual(parseString(testStrings[2]), JSON.parse(testStrings[2])); // pass
-// assertObjectsEqual(parseString(testStrings[3]), JSON.parse(testStrings[3])); // pass
+assertObjectsEqual(parseString(testStrings[0]), JSON.parse(testStrings[0])); // pass
+assertObjectsEqual(parseString(testStrings[1]), [false]); //pass
+assertObjectsEqual(parseString(testStrings[2]), [true, false, false]);
+assertObjectsEqual(parseString(testStrings[3]), [true, false, null, false]);
 
 
 function assertObjectsEqual(actual, expected){
