@@ -60,11 +60,11 @@ var parseString = function(input) {
   function lexer(){
 
     currentToken = currentToken.trim();
-    if(currentToken === '[' || currentToken === ']'){
+    if(currentToken === '['){
       arrayCase();
     } else if(currentToken.match(a.bool) || currentToken.match(a.knull)) {
       valueCase();
-    } else if(currentToken === ','){
+    } else if(currentToken === ',' || currentToken === ']'){ // both of these mean 'skip ahead'
       resetToken();
     }
     getNextToken();
@@ -76,14 +76,9 @@ var parseString = function(input) {
     if(currentToken === '['){
       output = [];
       resetToken();
-    } else if(currentToken === ']'){
-      resetToken();
-      return;
-    } else{
+    }  else{
       throw('arrayCase() error');
     }
-
-    // return output;
   }
 
 
