@@ -125,10 +125,10 @@ var parseString = function(input) {
       throw('truncateInput() error: input string has been reduced to zero length');
     }
   };
-  getNextToken();
 
+  getNextToken();
   return output;
-  // return getNextToken();
+  // return getNextToken();  //this works too
 } // END ParseString()
 
 
