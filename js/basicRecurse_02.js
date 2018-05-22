@@ -1,11 +1,12 @@
 var parseString = function(input) {
-
   var currentToken = '';
   var currentIndex = 0;
   var a = {                     //RegEx Libary x.match(a.thing)
     bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
     knumber: /[0-9]/,
+    pair: /("(.*)":)/,
+    string: /"(.*)"/,
   }
 
   var arrayCase = function (){
@@ -17,21 +18,20 @@ var parseString = function(input) {
         parseArray();
       } else if(currentIndex > 0 && currentIndex < input.length){
         if(currentToken === ','){
-          proceed();
+          pushAndProceed(false);
         }else if(currentToken === '['){
           resetToken();
           getNextToken();
           output.push(arrayCase());
         } else if(currentToken.match(a.bool)){
-          output.push(valueCase());
-          proceed();
+          pushAndProceed(true);
         }else if(currentToken.match(a.knull)){
-          output.push(null);
-          proceed();
+          pushAndProceed(true);
         }else if(currentToken.match(a.knumber) &&
-                (input[currentIndex + 1] === ',' || input[currentIndex + 1] === ']')){
-          output.push(valueCase());
-          proceed();
+          (input[currentIndex + 1] === ',' || input[currentIndex + 1] === ']')){
+          pushAndProceed(true);
+        }else if(currentToken.match(a.string)){
+          pushAndProceed(true);
         }else {
           getNextToken();
           parseArray();
@@ -39,7 +39,10 @@ var parseString = function(input) {
       }else if(currentIndex === input.length){
         return;
       }
-      function proceed(){
+      function pushAndProceed(push){
+        if(push === true){
+          output.push(valueCase());
+        }
         resetToken();
         getNextToken();
         parseArray();
@@ -50,21 +53,23 @@ var parseString = function(input) {
   } // END ARRAY CASE
 
 
+
   /* *********** HELPERS ********************/
   function valueCase() {
-      // console.log('valcase', currentToken);
-      if (currentToken === 'true') {
-        return true;
-      } else if (currentToken === 'false') {
-        return false;
-      }else if (currentToken === 'null'){
-        return null;
-      }else if(currentToken.match(a.knumber)){
-        return Number(currentToken);
-
-      }else{
-        throw('valueCase() error');
-      }
+    // console.log('valcase', currentToken);
+    if (currentToken === 'true') {
+      return true;
+    } else if (currentToken === 'false') {
+      return false;
+    }else if (currentToken === 'null'){
+      return null;
+    }else if(currentToken.match(a.knumber)){
+      return Number(currentToken);
+    }else if(currentToken.match(a.string)){
+      return currentToken.match(a.string)[1];
+    }else{
+      throw('valueCase() error');
+    }
 
     resetToken();
   }
@@ -85,6 +90,7 @@ var parseString = function(input) {
     return undefined;
   }
 }
+
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
