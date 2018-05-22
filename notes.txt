@@ -30,6 +30,6 @@ Pre-requisites
    - Make prodigious use of console logs.
    - The devtools Sources panel will also be of help.
 
-5. basicRecurse_02.js switches things up.
+5. basicRecurse_03.js switches things up.
   - Previously we used closures haphazardly.
   - Now we will start using them deliberately.
