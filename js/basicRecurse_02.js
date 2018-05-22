@@ -5,13 +5,13 @@ var parseString = function(input) {
   var a = {                     //RegEx Libary x.match(a.thing)
     bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
+    knumber: /[0-9]/,
   }
 
   var arrayCase = function (){
     let output = [];
 
     var parseArray = function() {
-      currentToken = currentToken.trim();
       if(currentIndex === 0){
         getNextToken();
         parseArray();
@@ -22,32 +22,33 @@ var parseString = function(input) {
           resetToken();
           getNextToken();
           output.push(arrayCase());
-
         } else if(currentToken.match(a.bool)){
           output.push(valueCase());
           proceed();
         }else if(currentToken.match(a.knull)){
           output.push(null);
           proceed();
+        }else if(currentToken.match(a.knumber) &&
+                (input[currentIndex + 1] === ',' || input[currentIndex + 1] === ']')){
+          output.push(valueCase());
+          proceed();
         }else {
           getNextToken();
           parseArray();
         }
-
       }else if(currentIndex === input.length){
         return;
       }
-
       function proceed(){
         resetToken();
         getNextToken();
         parseArray();
       }
-
     }
     parseArray();
     return output;
-  }
+  } // END ARRAY CASE
+
 
   /* *********** HELPERS ********************/
   function valueCase() {
@@ -58,6 +59,9 @@ var parseString = function(input) {
         return false;
       }else if (currentToken === 'null'){
         return null;
+      }else if(currentToken.match(a.knumber)){
+        return Number(currentToken);
+
       }else{
         throw('valueCase() error');
       }
@@ -72,6 +76,7 @@ var parseString = function(input) {
   function getNextToken () {
     currentIndex++;
     currentToken += input[currentIndex];
+    currentToken = currentToken.trim();
   }
 
   if(input[0] === '['){
@@ -83,11 +88,13 @@ var parseString = function(input) {
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
-  // '[]',
-  // '[false]',
-  // '[true, false, false]',
-  // '[true, false, null, false]',
+  '[]',
+  '[false]',
+  '[true, false, false]',
+  '[true, false, null, false]',
   '[true, false,[ null, false]]',
+  '[1, 3, 44, 1]',
+  '[1, 3, -1]',
 ];
 
 
