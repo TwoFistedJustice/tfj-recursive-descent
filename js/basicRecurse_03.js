@@ -67,14 +67,15 @@ var parseString = function (input) {
         if (currentToken.match(a.pair)) {
           let key = setKeyAsPair();
           resetToken()
-
-          let val = parsePairValue();
-          // output[key] = val;
+          // TODO I have no idea what is happening in this block :-/
+          // why do I need to call parsePairValue TWICE ????
+          parsePairValue();
           output[key] = parsePairValue();
-          // output["thi"] = parsePairValue();
-
-        } else {
-
+          proceed();
+          // resetToken();
+          // parseObject();
+        }
+        else {
           getNextToken();
           parseObject();
         }
@@ -87,27 +88,24 @@ var parseString = function (input) {
         getNextToken();
         if(currentToken === '}'){
           return;
-        } else if(currentToken.match(a.bool)){
-           return valueCase();
-        } else if(currentToken.match(a.knull)){
-          return valueCase();
-        } else if(currentToken.match(a.knumber) && input[currentIndex + 1] === ','){
-          return valueCase();
-        } else if(currentToken.match(a.string)){
+        } else if(currentToken.match(a.bool) ||
+                  currentToken.match(a.knull) ||
+                  currentToken.match(a.string) ||
+                  currentToken.match(a.knumber) && input[currentIndex + 1] === ','){
           return valueCase();
         }else{
           parsePairValue()
         }
-
+        // parsePairValue()
         // else if(){/*OBJECT*/}
         // else if(){/*ARRAY*/}
       }
 
-     // function proceed() {
-     //    resetToken();
-     //    getNextToken();
-     //    parseObject();
-     //  }
+     function proceed() {
+        resetToken();
+        getNextToken();
+        parseObject();
+      }
 
       // it retrieves whatever is returned by the regex libary
       function setKeyAsPair() {
@@ -173,7 +171,7 @@ var testStrings = [
   // '["one", "two"]',
   '{"foo": "bar"}',
   '{"a": "b", "c": "d"}',
-  // '{"foo": true, "bar": false, "baz": null}',
+  '{"foo": true, "bar": false, "baz": null}',
   // '{"boolean, true": true, "boolean, false": false, "null": null }',
   // '[]',
   // '{}',
