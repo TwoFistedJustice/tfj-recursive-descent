@@ -11,24 +11,37 @@ var parseString = function(input) {
     let output = [];
 
     var parseArray = function() {
+      currentToken = currentToken.trim();
       if(currentIndex === 0){
         getNextToken();
         parseArray();
       } else if(currentIndex > 0 && currentIndex < input.length){
-        // if(currentToken === 'true' || currentToken === 'false'){
-        if(currentToken.match(a.bool)){
-          output.push(valueCase());
+        if(currentToken === ','){
+          proceed();
+        }else if(currentToken === '['){
           resetToken();
-          return;
+          getNextToken();
+          output.push(arrayCase());
 
-        } else {
+        } else if(currentToken.match(a.bool)){
+          output.push(valueCase());
+          proceed();
+        }else if(currentToken.match(a.knull)){
+          output.push(null);
+          proceed();
+        }else {
           getNextToken();
           parseArray();
-          return;
         }
 
       }else if(currentIndex === input.length){
         return;
+      }
+
+      function proceed(){
+        resetToken();
+        getNextToken();
+        parseArray();
       }
 
     }
@@ -37,8 +50,6 @@ var parseString = function(input) {
   }
 
   /* *********** HELPERS ********************/
-
-
   function valueCase() {
       // console.log('valcase', currentToken);
       if (currentToken === 'true') {
@@ -58,7 +69,6 @@ var parseString = function(input) {
     currentToken = '';
   }
 
-
   function getNextToken () {
     currentIndex++;
     currentToken += input[currentIndex];
@@ -73,10 +83,11 @@ var parseString = function(input) {
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
-  '[]',
-  '[false]',
+  // '[]',
+  // '[false]',
   // '[true, false, false]',
   // '[true, false, null, false]',
+  '[true, false,[ null, false]]',
 ];
 
 
