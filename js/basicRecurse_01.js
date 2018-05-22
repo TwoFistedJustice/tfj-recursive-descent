@@ -28,6 +28,16 @@ The first char in the string is a square brace
   Then get the next char from the input string
 
   Repeat until we run out of chars
+
+  Also, this is the worst possible way to do this.
+
+  Version 2 will include the same functionality, but be much more concise and will
+  make deliberate use of closures. It will also be able to handle nested arrays.
+
+  I include it because it was my first implementation. So even though it is very sub-optimal
+  it may be intuitive for many people. Just understand that if you need to do anything more
+  complicated than processing simple string literals, this logic is never going to be able
+  to do it.
 */
 
 var parseString = function (input) {
