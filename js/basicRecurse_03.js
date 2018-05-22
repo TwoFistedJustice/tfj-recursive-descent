@@ -1,6 +1,5 @@
 var parseString = function (input) {
-
-  var currentToken = '';
+    var currentToken = '';
   var currentIndex = 0;
   var a = {                     //RegEx Libary x.match(a.thing)
     bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
@@ -67,9 +66,15 @@ var parseString = function (input) {
 
         if (currentToken.match(a.pair)) {
           let key = setKeyAsPair();
+          resetToken()
+
           let val = parsePairValue();
-          output[key] = val;
+          // output[key] = val;
+          output[key] = parsePairValue();
+          // output["thi"] = parsePairValue();
+
         } else {
+
           getNextToken();
           parseObject();
         }
@@ -78,31 +83,37 @@ var parseString = function (input) {
       }
 
       function parsePairValue() {
-        proceed();
-        // if(currentToken.match(a.bool)){/*BOOL*/}
-        // else if(currentToken.match(a.knull)){/*KNULL*/}
-        // else if(currentToken.match(a.knumber) && (input[currentIndex + 1] === ','){/*KNUMBER*/}
-        // else if(currentToken.match(a.string)){/*STRING*/
-        if (currentToken.match(a.string)) {/*STRING*/
+        // resetToken();
+        getNextToken();
+        if(currentToken === '}'){
+          return;
+        } else if(currentToken.match(a.bool)){
+           return valueCase();
+        } else if(currentToken.match(a.knull)){
           return valueCase();
-
+        } else if(currentToken.match(a.knumber) && input[currentIndex + 1] === ','){
+          return valueCase();
+        } else if(currentToken.match(a.string)){
+          return valueCase();
+        }else{
+          parsePairValue()
         }
+
         // else if(){/*OBJECT*/}
         // else if(){/*ARRAY*/}
       }
 
-      function proceed() {
-        resetToken();
-        getNextToken();
-        parseObject();
-      }
+     // function proceed() {
+     //    resetToken();
+     //    getNextToken();
+     //    parseObject();
+     //  }
 
       // it retrieves whatever is returned by the regex libary
       function setKeyAsPair() {
         // console.log(currentToken.match(a.pair))
         return currentToken.match(a.pair)[2];
       }
-
     };
 
     parseObject();
@@ -110,7 +121,6 @@ var parseString = function (input) {
   } // END OBJECT CASE
 
   /* *********** HELPERS ********************/
-
 
   function valueCase() {
     // console.log('valcase', currentToken);
@@ -125,7 +135,7 @@ var parseString = function (input) {
     } else if (currentToken.match(a.string)) {
       return currentToken.match(a.string)[1];
     } else {
-      throw('valueCase() error');
+      throw('valueCase() error' + currentToken);
     }
 
     resetToken();
@@ -161,14 +171,14 @@ var testStrings = [
   // '[1, 3, -1]',
   // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
   // '["one", "two"]',
-  // '{"foo": "bar"}',
-  // '{"a": "b", "c": "d"}',
+  '{"foo": "bar"}',
+  '{"a": "b", "c": "d"}',
   // '{"foo": true, "bar": false, "baz": null}',
   // '{"boolean, true": true, "boolean, false": false, "null": null }',
   // '[]',
-  '{}',
-  '{"foo": ""}',
-  '{"foo": "bar"}',
+  // '{}',
+  // '{"foo": ""}',
+  // '{"foo": "bar"}',
 
   // '["one", "two"]',
   // '{"a": "b", "c": "d"}',
@@ -177,13 +187,14 @@ var testStrings = [
   //
   // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
   //
-  '{"boolean, true": true, "boolean, false": false, "null": null }',
+  // '{"boolean, true": true, "boolean, false": false, "null": null }',
+  // '{"boolean, true": true, "boolean, false": false, "null": "fart" }',
   //
   // // basic nesting
   // '{"a":{"b":"c"}}',
   // '{"a":["b", "c"]}',
   // '[{"a":"b"}, {"c":"d"}]',
-  '{"a":[],"c": {}, "b": true}',
+  // '{"a":[],"c": {}, "b": true}',
   // '[[[["foo"]]]]',
 
 ];
