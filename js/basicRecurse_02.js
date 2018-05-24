@@ -70,8 +70,6 @@ var parseString = function(input) {
     }else{
       throw('valueCase() error');
     }
-
-    resetToken();
   }
 
   function resetToken(){
