@@ -25,9 +25,9 @@ var parseJson = function (json) {
       let key = undefined;
       let keyIndex = json.indexOf('"', 1);
       let colonIndex = json.indexOf(':', 1) + 1;
-      let nextJson = json.slice(colonIndex, json.length).trim();
+      json = json.slice(colonIndex, json.length).trim();
       key = json.slice(1, keyIndex);
-      obj[key] = parseJson(nextJson);;
+      obj[key] = parseJson(json);;
       return obj;
     }
 
@@ -35,28 +35,28 @@ var parseJson = function (json) {
 
 
     if (json[0] === 't') {
-      let nextJson = json.slice(3, json.length);
-      parseJson(nextJson);
+      json = json.slice(3, json.length);
+      parseJson(json);
       return true;
     } else if (json[0] === 'f') {
-      let nextJson = json.slice(4, json.length);
-      parseJson(nextJson);
+      json = json.slice(4, json.length);
+      parseJson(json);
       return false;
     } else if (json[0] === 'n') {
-      let nextJson = json.slice(3, json.length);
-      parseJson(nextJson);
+      json = json.slice(3, json.length);
+      parseJson(json);
       return null;
     } else if (json[0].match(a.knumber) || json[0] === '-') {
       let lastIndex = json.indexOf(',', 1);
       let value = json.slice(0, lastIndex);
-      let nextJson = json.slice(lastIndex, json.length).trim();
-      parseJson(nextJson);
+      json = json.slice(lastIndex, json.length).trim();
+      parseJson(json);
       return Number(value);
     } else if (json[0] === '"') {
       let lastIndex = json.indexOf('"', 1);
       let value = json.slice(1, lastIndex);
-      let nextJson = json.slice(lastIndex + 1, json.length).trim();
-      parseJson(nextJson);
+      json = json.slice(lastIndex + 1, json.length).trim();
+      parseJson(json);
       return value;
     } else if (json[0] === '{'){
 
