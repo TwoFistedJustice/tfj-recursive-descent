@@ -1,199 +1,118 @@
+/* Converting this to only parse objects with non-array members*/
+
 var parseString = function (input) {
-    var currentToken = '';
+  var currentToken = '';
   var currentIndex = 0;
   var a = {                     //RegEx Libary x.match(a.thing)
-    bool: /(?<!")(false|true)/, // will match 'true' but not '"true"'
+    bool: /(?!")(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
     knumber: /[0-9]/,
     pair: /("(.*)":)/,
     string: /"(.*)"/,
   }
-
-  var arrayCase = function () {
-    let output = [];
-
-    var parseArray = function () {
-      if (currentIndex === 0) {
-        getNextToken();
-        parseArray();
-      } else if (currentIndex > 0 && currentIndex < input.length) {
-        if (currentToken === ',') {
-          pushAndProceed(false);
-        } else if (currentToken === '[') {
-          resetToken();
-          getNextToken();
-          output.push(arrayCase());
-        } else if (currentToken.match(a.bool)) {
-          pushAndProceed(true);
-        } else if (currentToken.match(a.knull)) {
-          pushAndProceed(true);
-        } else if (currentToken.match(a.knumber) &&
-          (input[currentIndex + 1] === ',' || input[currentIndex + 1] === ']')) {
-          pushAndProceed(true);
-        } else if (currentToken.match(a.string)) {
-          pushAndProceed(true);
-        } else {
-          getNextToken();
-          parseArray();
-        }
-      } else if (currentIndex === input.length) {
-        return;
-      }
-
-      // Helper for parseArray
-      function pushAndProceed(push) {
-        if (push === true) {
-          output.push(valueCase());
-        }
-        resetToken();
-        getNextToken();
-        parseArray();
-      }
-    }
-    parseArray();
-    return output;
-  } // END ARRAY CASE
-
+  let key = undefined;
+  let output = {};
 
   var objectCase = function () {
-    let output = {};
+
 
     var parseObject = function () {
+
       if (currentIndex === 0) {
         getNextToken();
-        parseObject();
+        objectCase()
       } else if (currentIndex > 0 && currentIndex < input.length) {
+        if(currentToken === ','){
+          proceedObj();
 
-        if (currentToken.match(a.pair)) {
-          let key = setKeyAsPair();
-          resetToken()
-          // TODO I have no idea what is happening in this block :-/
-          // why do I need to call parsePairValue TWICE ????
-          parsePairValue();
-          output[key] = parsePairValue();
-          proceed();
-          // resetToken();
-          // parseObject();
         }
+        else if (currentToken.match(a.pair)) {
+          key = currentToken.match(a.pair)[2];
+          console.log(currentToken)
+          proceedObj();
+
+        }
+        else if (currentToken.match(a.bool)){
+          output[key] = valueCase();
+          proceedObj();
+        }
+        else if (currentToken.match(a.knull)){
+          output[key]= null;
+          proceedObj();
+        }
+        else if (currentToken.match(a.knumber)){
+          output[key]= Number(currentToken);
+          proceedObj();
+        }
+        else if (currentToken.match(a.string) && input[currentIndex  + 1] !== ":"){
+          output[key]= currentToken.match(a.string)[1];
+          proceedObj();
+        }
+
+
         else {
           getNextToken();
-          parseObject();
+          objectCase()
         }
-      } else if (currentIndex === input.length) {
-        return;
       }
-
-      function parsePairValue() {
-        // resetToken();
-        getNextToken();
-        if(currentToken === '}'){
-          return;
-        } else if(currentToken.match(a.bool) ||
-                  currentToken.match(a.knull) ||
-                  currentToken.match(a.string) ||
-                  currentToken.match(a.knumber) && input[currentIndex + 1] === ','){
-          return valueCase();
-        }else{
-          parsePairValue()
-        }
-        // parsePairValue()
-        // else if(){/*OBJECT*/}
-        // else if(){/*ARRAY*/}
-      }
-
-     function proceed() {
-        resetToken();
-        getNextToken();
-        parseObject();
-      }
-
-      // it retrieves whatever is returned by the regex libary
-      function setKeyAsPair() {
-        // console.log(currentToken.match(a.pair))
-        return currentToken.match(a.pair)[2];
-      }
-    };
+    };  /*  END parseObject()*/
 
     parseObject();
-    return output;
-  } // END OBJECT CASE
+    // return output
+  } /* ********** END OBJECT CASE ******* */
 
   /* *********** HELPERS ********************/
-
-  function valueCase() {
-    // console.log('valcase', currentToken);
-    if (currentToken === 'true') {
-      return true;
-    } else if (currentToken === 'false') {
-      return false;
-    } else if (currentToken === 'null') {
-      return null;
-    } else if (currentToken.match(a.knumber)) {
-      return Number(currentToken);
-    } else if (currentToken.match(a.string)) {
-      return currentToken.match(a.string)[1];
-    } else {
-      throw('valueCase() error' + currentToken);
-    }
-
-    resetToken();
-  }
-
   function resetToken() {
     currentToken = '';
   }
 
+  function proceedObj(){
+    resetToken();
+    getNextToken();
+    objectCase();
+  }
+
+
+  function valueCase() {
+    console.log(currentToken);
+    if (currentToken === 'true') {
+      return true;
+    } else if (currentToken === 'false') {
+      return false;
+    }else if (currentToken === 'null'){
+      return null;
+    }else if(currentToken.match(a.knumber)){
+      return Number(currentToken);
+    }else if(currentToken.match(a.string)){
+      return currentToken.match(a.string)[1];
+    }else{
+      // return;
+      throw('valueCase() error');
+    }
+  }
+
   function getNextToken() {
+    // console.log(output)
     currentIndex++;
     currentToken += input[currentIndex];
     currentToken = currentToken.trim();
   }
 
-  if (input[0] === '[') {
-    return arrayCase();
-  } else if (input[0] === '{') {
-    return objectCase();
-  } else {
-    return undefined;
-  }
+
+  objectCase()
+  return output;
+  // return objectCase();
 }
+
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
-  // '[]',
-  // '[false]',
-  // '[true, false, false]',
-  // '[true, false, null, false]',
-  // '[true, false,[ null, false]]',
-  // '[1, 3, 44, 1]',
-  // '[1, 3, -1]',
-  // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
-  // '["one", "two"]',
   '{"foo": "bar"}',
+  '{"foo": true}',
   '{"a": "b", "c": "d"}',
+  '{"foo": true, "bar": false}',
   '{"foo": true, "bar": false, "baz": null}',
   // '{"boolean, true": true, "boolean, false": false, "null": null }',
-  // '[]',
-  // '{}',
-  // '{"foo": ""}',
-  // '{"foo": "bar"}',
-
-  // '["one", "two"]',
-  // '{"a": "b", "c": "d"}',
-  // '[null,false,true]',
-  // '{"foo": true, "bar": false, "baz": null}',
-  //
-  // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]',
-  //
-  // '{"boolean, true": true, "boolean, false": false, "null": null }',
-  // '{"boolean, true": true, "boolean, false": false, "null": "fart" }',
-  //
-  // // basic nesting
-  // '{"a":{"b":"c"}}',
-  // '{"a":["b", "c"]}',
-  // '[{"a":"b"}, {"c":"d"}]',
-  // '{"a":[],"c": {}, "b": true}',
-  // '[[[["foo"]]]]',
 
 ];
 
