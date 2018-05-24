@@ -1,120 +1,82 @@
 /* Converting this to only parse objects with non-array members*/
 
-var parseString = function (input) {
-  var currentToken = '';
-  var currentIndex = 0;
+var parseJson = function (json) {
   var a = {                     //RegEx Libary x.match(a.thing)
     // bool: /(?!")(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
     knumber: /[0-9]/,
     pair: /("(.*)":)/,
-    string: /"(.*)"/,
+    // string: /"(.*)"/,
   }
-  let key = undefined;
-  let output = {};
-  var doTrim = false;
 
+  // var obj = undefined;
+  /*
+  11:30 PM
+  Need to determine what is a key and what is a value
+  the second pair is not being recognized....
+  a pair  is string followed by a :
 
-  var parseObject = function () {
+  every time parseObject is called, a new object is created... bad!
+  ... move the obj dec into main function, maybe down in value setters?
 
-    if (currentIndex === 0) {
-      getNextToken();
-      parseObject()
-    } else if (currentIndex > 0 && currentIndex < input.length) {
-      if(currentToken === ','){
-        proceedObj();
-
-      }
-      else if(input[currentIndex + 1] === '\"'){
-        getNextToken();
-        parseObject();
-      }
-      else if (currentToken.match(a.pair)) {
-        key = currentToken.match(a.pair)[2];
-        doTrim = true;
-        proceedObj();
-
-      }
-      else if (currentToken === 'true' || currentToken === 'false'){
-        output[key] = valueCase();
-        doTrim = false;
-        proceedObj();
-      }
-      else if (currentToken.match(a.knull)){
-        output[key]= null;
-        doTrim = false;
-        proceedObj();
-      }
-      else if (currentToken.match(a.knumber)){
-        output[key]= Number(currentToken);
-        doTrim = false;
-        proceedObj();
-      }
-      else if (currentToken.match(a.string) && input[currentIndex  + 1] !== ":"){
-        output[key]= currentToken.match(a.string)[1];
-        doTrim = false;
-        proceedObj();
-      }
-
-
-      else {
-        getNextToken();
-        parseObject()
-      }
+*/
+   var parseObject = function (json) {
+      // let obj = {};
+      let obj = {};
+      let key = undefined;
+      let keyIndex = json.indexOf('"', 1);
+      let colonIndex = json.indexOf(':', 1) + 1;
+      let nextJson = json.slice(colonIndex, json.length).trim();
+      key = json.slice(1, keyIndex);
+      obj[key] = parseJson(nextJson);;
+      return obj;
     }
-  };  /*  END parseObject()*/
+
+    /* *********** VALUE SETTERS ********************/
 
 
-  /* *********** HELPERS ********************/
-  function resetToken() {
-    currentToken = '';
-  }
-
-  function proceedObj(){
-    resetToken();
-    getNextToken();
-    parseObject();
-  }
-
-
-  function valueCase() {
-    // console.log('**************************',currentToken);
-    if (currentToken === 'true') {
+    if (json[0] === 't') {
+      let nextJson = json.slice(3, json.length);
+      parseJson(nextJson);
       return true;
-    } else if (currentToken === 'false') {
+    } else if (json[0] === 'f') {
+      let nextJson = json.slice(4, json.length);
+      parseJson(nextJson);
       return false;
-    }else if (currentToken === 'null'){
+    } else if (json[0] === 'n') {
+      let nextJson = json.slice(3, json.length);
+      parseJson(nextJson);
       return null;
-    }else if(currentToken.match(a.knumber)){
-      return Number(currentToken);
-    }else if(currentToken.match(a.string)){
-      return currentToken.match(a.string)[1];
-    }else{
-      throw('valueCase() error');
+    } else if (json[0].match(a.knumber) || json[0] === '-') {
+      let lastIndex = json.indexOf(',', 1);
+      let value = json.slice(0, lastIndex);
+      let nextJson = json.slice(lastIndex, json.length).trim();
+      parseJson(nextJson);
+      return Number(value);
+    } else if (json[0] === '"') {
+      let lastIndex = json.indexOf('"', 1);
+      let value = json.slice(1, lastIndex);
+      let nextJson = json.slice(lastIndex + 1, json.length).trim();
+      parseJson(nextJson);
+      return value;
+    } else if (json[0] === '{'){
+
+      return parseObject(json.slice(1, json.length));
+    } else if (json[0] === ',') {
+      return parseObject(json.slice(1, json.length).trim());
     }
-  }
 
-  function getNextToken() {
-    // console.log(output)
-    currentIndex++;
-    currentToken += input[currentIndex];
-    if(doTrim === true){
-      currentToken = currentToken.trim();
-    }
 
-  }
-
-  parseObject();
-
-  return output;
-  // return parseObject();
 }
 
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
-  '{"foo": "bar"}',
-  '{"foo": true}',
+  // '{"foo": "bar"}',
+  // '{"foo": true}',
+  // '{"foo": 5}',
+  // '{"foo": -5}',
+  // '{"foo": -5.000009}',
   '{"a": "b", "c": "d"}',
   '{"foo": true, "bar": false}',
   '{"foo": true, "bar": false, "baz": null}',
@@ -124,7 +86,7 @@ var testStrings = [
 
 
 // testStrings.forEach(str => console.log(JSON.stringify(JSON.parse(str))));
-testStrings.forEach(str => assertObjectsEqual(parseString(str), JSON.parse(str)));
+testStrings.forEach(str => assertObjectsEqual(parseJson(str), JSON.parse(str)));
 
 function assertObjectsEqual(actual, expected) {
   actual = JSON.stringify(actual);
