@@ -4,7 +4,7 @@ var parseString = function (input) {
   var currentToken = '';
   var currentIndex = 0;
   var a = {                     //RegEx Libary x.match(a.thing)
-    bool: /(?!")(?<!")(false|true)/, // will match 'true' but not '"true"'
+    // bool: /(?!")(?<!")(false|true)/, // will match 'true' but not '"true"'
     knull: /(?<!")(null)/,
     knumber: /[0-9]/,
     pair: /("(.*)":)/,
@@ -12,54 +12,58 @@ var parseString = function (input) {
   }
   let key = undefined;
   let output = {};
-
-  var objectCase = function () {
-
-
-    var parseObject = function () {
-
-      if (currentIndex === 0) {
-        getNextToken();
-        objectCase()
-      } else if (currentIndex > 0 && currentIndex < input.length) {
-        if(currentToken === ','){
-          proceedObj();
-
-        }
-        else if (currentToken.match(a.pair)) {
-          key = currentToken.match(a.pair)[2];
-          console.log(currentToken)
-          proceedObj();
-
-        }
-        else if (currentToken.match(a.bool)){
-          output[key] = valueCase();
-          proceedObj();
-        }
-        else if (currentToken.match(a.knull)){
-          output[key]= null;
-          proceedObj();
-        }
-        else if (currentToken.match(a.knumber)){
-          output[key]= Number(currentToken);
-          proceedObj();
-        }
-        else if (currentToken.match(a.string) && input[currentIndex  + 1] !== ":"){
-          output[key]= currentToken.match(a.string)[1];
-          proceedObj();
-        }
+  var doTrim = false;
 
 
-        else {
-          getNextToken();
-          objectCase()
-        }
+  var parseObject = function () {
+
+    if (currentIndex === 0) {
+      getNextToken();
+      parseObject()
+    } else if (currentIndex > 0 && currentIndex < input.length) {
+      if(currentToken === ','){
+        proceedObj();
+
       }
-    };  /*  END parseObject()*/
+      else if(input[currentIndex + 1] === '\"'){
+        getNextToken();
+        parseObject();
+      }
+      else if (currentToken.match(a.pair)) {
+        key = currentToken.match(a.pair)[2];
+        doTrim = true;
+        proceedObj();
 
-    parseObject();
-    // return output
-  } /* ********** END OBJECT CASE ******* */
+      }
+      else if (currentToken === 'true' || currentToken === 'false'){
+        output[key] = valueCase();
+        doTrim = false;
+        proceedObj();
+      }
+      else if (currentToken.match(a.knull)){
+        output[key]= null;
+        doTrim = false;
+        proceedObj();
+      }
+      else if (currentToken.match(a.knumber)){
+        output[key]= Number(currentToken);
+        doTrim = false;
+        proceedObj();
+      }
+      else if (currentToken.match(a.string) && input[currentIndex  + 1] !== ":"){
+        output[key]= currentToken.match(a.string)[1];
+        doTrim = false;
+        proceedObj();
+      }
+
+
+      else {
+        getNextToken();
+        parseObject()
+      }
+    }
+  };  /*  END parseObject()*/
+
 
   /* *********** HELPERS ********************/
   function resetToken() {
@@ -69,12 +73,12 @@ var parseString = function (input) {
   function proceedObj(){
     resetToken();
     getNextToken();
-    objectCase();
+    parseObject();
   }
 
 
   function valueCase() {
-    console.log(currentToken);
+    // console.log('**************************',currentToken);
     if (currentToken === 'true') {
       return true;
     } else if (currentToken === 'false') {
@@ -86,7 +90,6 @@ var parseString = function (input) {
     }else if(currentToken.match(a.string)){
       return currentToken.match(a.string)[1];
     }else{
-      // return;
       throw('valueCase() error');
     }
   }
@@ -95,13 +98,16 @@ var parseString = function (input) {
     // console.log(output)
     currentIndex++;
     currentToken += input[currentIndex];
-    currentToken = currentToken.trim();
+    if(doTrim === true){
+      currentToken = currentToken.trim();
+    }
+
   }
 
+  parseObject();
 
-  objectCase()
   return output;
-  // return objectCase();
+  // return parseObject();
 }
 
 
@@ -112,13 +118,13 @@ var testStrings = [
   '{"a": "b", "c": "d"}',
   '{"foo": true, "bar": false}',
   '{"foo": true, "bar": false, "baz": null}',
-  // '{"boolean, true": true, "boolean, false": false, "null": null }',
+  '{"boolean, true": true, "boolean, false": false, "null": null }',
 
 ];
 
 
+// testStrings.forEach(str => console.log(JSON.stringify(JSON.parse(str))));
 testStrings.forEach(str => assertObjectsEqual(parseString(str), JSON.parse(str)));
-
 
 function assertObjectsEqual(actual, expected) {
   actual = JSON.stringify(actual);
@@ -129,5 +135,3 @@ function assertObjectsEqual(actual, expected) {
     console.log('FAIL: expected \"' + expected + '\", but got \"' + actual + '\"');
   }
 }
-
-
