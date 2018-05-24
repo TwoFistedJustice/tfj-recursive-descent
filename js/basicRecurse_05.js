@@ -38,30 +38,42 @@ var parseJson = function (json) {
       json = json.slice(3, json.length);
       parseJson(json);
       return true;
-    } else if (json[0] === 'f') {
+    }
+    
+    else if (json[0] === 'f') {
       json = json.slice(4, json.length);
       parseJson(json);
       return false;
-    } else if (json[0] === 'n') {
+    }
+    
+    else if (json[0] === 'n') {
       json = json.slice(3, json.length);
       parseJson(json);
       return null;
-    } else if (json[0].match(a.knumber) || json[0] === '-') {
+    }
+    
+    else if (json[0].match(a.knumber) || json[0] === '-') {
       let lastIndex = json.indexOf(',', 1);
       let value = json.slice(0, lastIndex);
       json = json.slice(lastIndex, json.length).trim();
       parseJson(json);
       return Number(value);
-    } else if (json[0] === '"') {
+    }
+    
+    else if (json[0] === '"') {
       let lastIndex = json.indexOf('"', 1);
       let value = json.slice(1, lastIndex);
       json = json.slice(lastIndex + 1, json.length).trim();
       parseJson(json);
       return value;
-    } else if (json[0] === '{'){
+    }
+    
+    else if (json[0] === '{'){
 
       return parseObject(json.slice(1, json.length));
-    } else if (json[0] === ',') {
+    }
+    
+    else if (json[0] === ',') {
       return parseObject(json.slice(1, json.length).trim());
     }
 
