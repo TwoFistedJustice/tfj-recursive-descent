@@ -29,7 +29,7 @@ The first char in the string is a square brace
 
   Repeat until we run out of chars
 
-  Also, this is the worst possible way to do this.
+  Also, this is the secind worst possible way to do this. (the WORST is string.split)
 
   Version 2 will include the same functionality, but be much more concise and will
   make deliberate use of closures. It will also be able to handle nested arrays.
