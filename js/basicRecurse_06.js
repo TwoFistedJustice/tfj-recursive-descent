@@ -4,102 +4,106 @@ var parseJson = function (json) {
     knumber: /[0-9]/,
     pair: /("(.*)":)/,
   }
+  
+  var currentIndex = 0;
+  var jsonLength = json.length;
+  
   /*
-  It can't set the second key due to scope
-  maybe pass the object along as an arg?
-  try passing the first object along
+  never call parseJson once it is run
 */
-  var obj = undefined;
-  var key = undefined;
-  var array = [];
   
-  var parseObject = function (json) {
-    // var obj = {};
-    let keyIndex = json.indexOf ('"', 1);
-    let colonIndex = json.indexOf (':', 1) + 1;
-    key = json.slice (1, keyIndex);
-    json = json.slice (colonIndex - 1, json.length).trim ();
-    
-    obj[key] = parseValue(json);
-    
-    // console.log('returned collection', obj )
-    return obj;
+  var parseObject = function () {
+    var returnVal = {};
+    //use a for loop here or a while loop
+    return returnVal;
   }
-  /* *********** VALUE SETTERS ********************/
+  // track where we are in the string
+  // increase the index the number received
+  // the number is the length -1 of the value processed
+  var trackIndex = function (number) {
+    //could check current location and if it is a separator char, just increment index
+    currentIndex += number;
+  }
   
-  
-  var parseValue = function (json) {
-    if (json[0] === 't') {
-      json = json.slice (3, json.length);
-      parseValue(json);
-      return true;
+  var parseValue = function () {
+    // looks at char stored at currentIndex
+    // decides what to call next
+    if (currentIndex === '"') {
+      return parseString ();
     }
-    
-    else if (json[0] === 'f') {
-      json = json.slice (4, json.length);
-      parseValue(json);
-      return false;
+    else if (json[currentIndex].match (a.knumber) || json[currentIndex] === '-') {
+      return numify ();
     }
-    
-    else if (json[0] === 'n') {
-      json = json.slice (3, json.length);
-      parseValue(json);
-      return null;
+    else if (currentIndex === '{') {
+      return parseObject ();
     }
-    
-    else if (json[0].match (a.knumber) || json[0] === '-') {
-      let lastIndex = json.indexOf (',', 1);
-      let value = json.slice (0, lastIndex);
-      json = json.slice (lastIndex, json.length).trim ();
-      parseValue(json);
-      return Number (value);
+    // else if ( currentIndex === '['){ return parseArray()''}
+    else if (currentIndex === 't') {
+      return truthify ();
     }
-    
-    else if (json[0] === '"') {
-      // if (json[0] === '"') {
-      let lastIndex = json.indexOf ('"', 1);
-      let value = json.slice (1, lastIndex);
-      json = json.slice (lastIndex + 1, json.length).trim ();
-      parseValue(json);
-      return value;
+    else if (currentIndex === 'f') {
+      return falsify ();
     }
-    
-    else if (json[0] === '{') {
-      obj = {};
-      let thing = parseObject (json.slice (1, json.length));
-      // return parseObject(json.slice(1, json.length));
-      return thing;
+    else if (currentIndex === 'n') {
+      return knullify ();
     }
-    
-    else if (json[0] === ':') {
-      // sets the value half of 'key:value:
-      json = json.slice (1, json.length).trim ();
-      return parseValue(json);
-    }
-    
-    else if (json[0] === ',') {
-      let thing = parseObject (json.slice (1, json.length).trim ());
-      return thing;
-    } else {
+    // ENDING DELIMITERS
+    else if (currentIndex === '}') {
       return;
     }
+    else if (currentIndex === ':') {
+      return;
+    }
+    else if (currentIndex === ' ') {
+      return;
+    }
+    // else if ( currentIndex === ''){}
+    // trackIndex(arg)
   }
-  return parseValue(json)
+  
+  var parseString = function () {
+    // handles string values
+  }
+  
+  var numify = function () {
+    // it can search here for phone numbers
+    let commaIndex = json.indexOf (',', 0);
+    let value = json.slice (0, commaIndex);
+    return Number(value);
+  };
+  
+  var truthify = function () {
+    trackIndex (3);
+    return true;
+  };
+  
+  var falsify = function () {
+    trackIndex (4);
+    return false;
+  };
+  
+  var knullify = function () {
+    trackIndex (3);
+    return null;
+  };
+  
+  
+  return parseValue (json)
 }
 
 
 // ***************** ASSERTIONS **************************** //
 var testStrings = [
-  // '{"x": "y"}',
-  // '{"foo": "bar"}',
-  // '{"foo": true}',
-  // '{"foo": 5}',
-  // '{"foo": -5}',
-  // '{"foo": -5.000009}',
+  '{"x": "y"}',
+  '{"foo": "bar"}',
+  '{"foo": true}',
+  '{"foo": 5}',
+  '{"foo": -5}',
+  '{"foo": -5.000009}',
   '{"a": "b", "c": "d"}',
   // '{"foo": true, "bar": false}',
   // '{"foo": true, "bar": false, "baz": null}',
-  // '{"boolean, true": true, "boolean, false": false, "null": null }',
+  '{"boolean, true": true, "boolean, false": false, "null": null }',
 
 ];
 
