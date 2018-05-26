@@ -13,30 +13,33 @@ var parseJson = function (json) {
 */
   
   var parseObject = function () {
-    // var returnVal = {};
-    var returnVal = '{';
-    
-    //use a for loop here or a while loop
-    // console.log('rl')
+    var returnVal = {};
+    var jsonString = '{';
+    let key = undefined;
+    let val = undefined;
   
     while (index < jsonLength){
-     returnVal += parseValue();
+      let data = parseValue();
+      jsonString += data;
+     // if there is a following colon
+      // set a key
+      // otherwise set a value
+      if( json[index + 2] === ':' ){
+        key = data;
+      } else {
+        val = data;
+      }
+      returnVal[key] = val;
      }
-
+    console.log(jsonString)
     return returnVal;
   }
-  // track where we are in the string
-  // increase the index the number received
-  // the number is the length -1 of the value processed
+
   var trackIndex = function (number) {
-   
-    //could check current location and if it is a separator char, just increment index
     index += number;
   }
   
   var parseValue = function () {
-    // looks at char stored at currentIndex
-    // decides what to call next
     if (json[index] === '{') {
       
       trackIndex(1);
@@ -44,7 +47,7 @@ var parseJson = function (json) {
     }
     // else if ( currentIndex === '['){ return parseArray()''}
     else if (json[index] === '\"') {
-      console.log(json[index])
+      // console.log(json[index])
       return parseString();
     }
     else if (json[index].match (a.number) || json[index] === '-') {
@@ -84,15 +87,14 @@ var parseJson = function (json) {
     let endSearchAt = json.indexOf('"', beginSearchAt);
   
     let str = json.slice(beginSearchAt, endSearchAt);
-    console.log(str)
-    console.log(str.length)
-    // trackIndex(str.length);
+    // console.log(str)
+    // console.log(str.length)
     trackIndex(str.length + 2);
     return str;
   }
   
   var numify = function () {
-    // it can search here for phone numbers
+    // it should search here for phone numbers
     let commaIndex = json.indexOf (',', index);
     let value = json.slice (index, commaIndex);
     trackIndex(value.length);
